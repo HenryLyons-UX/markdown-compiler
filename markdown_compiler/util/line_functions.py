@@ -2,33 +2,14 @@
 Each of the functions in this file takes a single line of input and transforms the line in some way.
 '''
 
+
 def compile_headers(line):
-    if line[:2]== "# ":
-        line = line.replace('#', '<h1>') +'</h1>'
-    elif line[:3]== "## ":
-        line = line.replace('##', '<h2>') +'</h2>'
-    elif line[:4]== "### ":
-        line = line.replace('###', '<h3>') +'</h3>'
-    elif line[:5]== "#### ":
-        line = line.replace('####', '<h4>') +'</h4>'
-    elif line[:6]== "##### ":
-        line = line.replace('#####', '<h5>') +'</h5>'
-    elif line[:7]== "###### ":
-        line = line.replace('######', '<h6>') +'</h6>'
-    return line
-
-    
-  
-
-    
     '''
     Convert markdown headers into <h1>,<h2>,etc tags.
-
     HINT:
     This is the simplest function to implement in this assignment.
     Use a slices to extract the first part of the line,
     then use if statements to check if they match the appropriate header markdown commands.
-
     >>> compile_headers('# This is the main header')
     '<h1> This is the main header</h1>'
     >>> compile_headers('## This is a sub-header')
@@ -44,19 +25,29 @@ def compile_headers(line):
     >>> compile_headers('      # this is not a header')
     '      # this is not a header'
     '''
+    if line[:2] == "# ":
+        line = line.replace('#', '<h1>') + '</h1>'
+    elif line[:3] == "## ":
+        line = line.replace('##', '<h2>') + '</h2>'
+    elif line[:4] == "### ":
+        line = line.replace('###', '<h3>') + '</h3>'
+    elif line[:5] == "#### ":
+        line = line.replace('####', '<h4>') + '</h4>'
+    elif line[:6] == "##### ":
+        line = line.replace('#####', '<h5>') + '</h5>'
+    elif line[:7] == "###### ":
+        line = line.replace('######', '<h6>') + '</h6>'
     return line
 
 
 def compile_italic_star(line):
     '''
         Convert "*italic*" into "<i>italic</i>".
-    
         HINT:
         Italics require carefully tracking the beginning and ending positions of the text to be replaced.
         This is similar to the `delete_HTML` function that we implemented in class.
         It's a tiny bit more complicated since we are not just deleting substrings from the text,
         but also adding replacement substrings.
-    
         >>> compile_italic_star('*This is italic!* This is not italic.')
         '<i>This is italic!</i> This is not italic.'
         >>> compile_italic_star('*This is italic!*')
@@ -69,7 +60,6 @@ def compile_italic_star(line):
         '*'
     '''
     newLine = ""
-    num = line.count("*")
     for i in range(len(line)):
         if line[i] == "*" and line.count("*") != 1:
             if line[i] == "*" and newLine.count("<i>") == 1:
@@ -81,14 +71,10 @@ def compile_italic_star(line):
             newLine += line[i]
     return newLine
 
-   
-    
-
 
 def compile_italic_underscore(line):
     '''
     Convert "_italic_" into "<i>italic</i>".
-
     HINT:
     This function is almost exactly the same as `compile_italic_star`.
 
@@ -103,19 +89,16 @@ def compile_italic_underscore(line):
     >>> compile_italic_underscore('_')
     '_'
     '''
-    num = line.count("_")
     newLine = ""
     for i in range(len(line)):
-        if line[i:i+2] == "_*" and line.count("_*") != 1:
-            if line[i:i+2] == "_*" and newLine.count("<i>") == 1:
+        if line[i] == "_" and line.count("_") != 1:
+            if line[i] == "_" and newLine.count("<i>") == 1:
                 newLine += "</i>"
             else:
                 newLine += "<i>"
-    
         else:
             newLine += line[i]
     return newLine
-
 
 
 def compile_strikethrough(line):
@@ -140,18 +123,17 @@ def compile_strikethrough(line):
     '''
     newLine = ""
     for i in range(len(line)):
-        if line[i:i+2] == "~~" and line.count("~~") != 1:
-            if line[i:i+2] == "~~" and newLine.count("<ins>") ==1:
+        if line[i: i + 2] == "~~" and line.count("~~") != 1:
+            if line[i: i + 2] == "~~" and newLine.count("<ins>") == 1:
                 newLine += "</ins>"
             else:
                 newLine += "<ins>"
-       
         elif line[i] != "~":
             newLine += line[i]
-        elif line[i] == "~" and line[i-1] != "~":
+        elif line[i] == "~" and line[i - 1] != "~":
             newLine += line[i]
-        elif line[i] == "~" and line.count("~~") ==1:
-                newLine += line[i]
+        elif line[i] == "~" and line.count("~~") == 1:
+            newLine += line[i]
     return newLine
 
 
@@ -173,19 +155,21 @@ def compile_bold_stars(line):
     >>> compile_bold_stars('**')
     '**'
     '''
-    num = line.count("**")
     newLine = ""
     for i in range(len(line)):
-        if line[i:i+2] == "**" and line.count("**") != 1:
-            if line[i:i+2] == "**" and newLine.count("<b>") == 1:
+        if line[i:i + 2] == "**" and line.count("**") != 1:
+            if line[i:i + 2] == "**" and newLine.count("<b>") == 1:
                 newLine += "</b>"
             else:
                 newLine += "<b>"
-        elif line[i:i+2] == "**" and line.count("**") == 1:
-            newLine += line[i:i+2]
+        elif line[i:i + 2] == "**" and line.count("**") == 1:
+            newLine += line[i:i + 2]
         elif line[i] != "*":
             newLine += line[i]
+        elif line[i] == "*" and (i == 0 or line[i - 1] != "*") and line[i + 1:i + 2] != "*":
+            newLine += line[i]
     return newLine
+
 
 def compile_bold_underscore(line):
     '''
@@ -205,18 +189,19 @@ def compile_bold_underscore(line):
     >>> compile_bold_underscore('__')
     '__'
     '''
-    num = line.count("__")
     newLine = ""
     for i in range(len(line)):
-        if line[i:i+2] == "__" and line.count("__") != 1:
-            if line[i:i+2] == "__" and newLine.count("<b>") == 1:
+        if line[i:i + 2] == "__" and line.count("__") != 1:
+            if line[i:i + 2] == "__" and newLine.count("<b>") == 1:
                 newLine += "</b>"
             else:
-                    newLine += "<b>"
-        elif line[i:i+2] == "__" and line.count("__") == 1:
-                newLine += line[i:i+2]
+                newLine += "<b>"
+        elif line[i:i + 2] == "__" and line.count("__") == 1:
+            newLine += line[i:i + 2]
         elif line[i] != "_":
-                newLine += line[i]
+            newLine += line[i]
+        elif (i == 0 or line[i - 1] != "_") and line[i + 1:i + 2] != "_":
+            newLine += line[i]
     return newLine
 
 
@@ -250,19 +235,18 @@ def compile_code_inline(line):
 
     newLine = ""
     for i in range(len(line)):
-            if line [i] == "`" and line.count("`") != 1 and line.count("```") != 1 and "`" not in line[0:i]:
-                start = i + 1
-                newLine += "<code>"
-                for c in line[start:]:
-        
-                    if c == "<":
-                        newLine += "&lt;"
-                    elif c == ">":
-                        newLine += "&gt;"
-                    elif c != "`":
-                        newLine += c
-                    elif c == "`":
-                        newLine += "</code>"
+        if line[i] == "`" and line.count("`") != 1 and line.count("```") != 1 and "`" not in line[0:i]:
+            start = i + 1
+            newLine += "<code>"
+            for c in line[start:]:
+                if c == "<":
+                    newLine += "&lt;"
+                elif c == ">":
+                    newLine += "&gt;"
+                elif c != "`":
+                    newLine += c
+                elif c == "`":
+                    newLine += "</code>"
                 break
             else:
                 newLine += line[i]
@@ -338,6 +322,8 @@ def compile_images(line):
     'This is an image of Mike Izbicki: <img src="https://avatars1.githubusercontent.com/u/1052630?v=2&s=460" alt="Mike Izbicki" />'
     '''
     if line.count("!") != 1:
+        return line
+    if "![" not in line or "](" not in line or ")" not in line:
         return line
     Alt = line.find("[")
     Altend = line.find("]")

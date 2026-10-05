@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 
 '''Convert a Markdown document into an HTML file.'''
-
-from markdown_compiler import *
-
+from markdown_compiler import convert_file
 def main():
     # process command line arguments
     import argparse

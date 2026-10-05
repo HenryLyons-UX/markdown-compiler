@@ -3,7 +3,16 @@ This file contains functions that work on entire documents at a time
 (and not line-by-line).
 '''
 
-from markdown_compiler.util.line_functions import *
+from markdown_compiler.util.line_functions import (
+    compile_headers,
+    compile_strikethrough,
+    compile_bold_stars,
+    compile_bold_underscore,
+    compile_italic_star,
+    compile_italic_underscore,
+    compile_code_inline,
+    compile_images,
+    compile_links)
 
 
 def compile_lines(text):
@@ -42,7 +51,6 @@ def compile_lines(text):
     This is a <b>bold</b> <i>italic</i> <code>code</code> test.
     And <i>another line</i>!
     </p>
-
     >>> print(compile_lines("""
     ... *paragraph1*
     ...
@@ -133,25 +141,35 @@ def compile_lines(text):
     lines = text.split('\n')
     new_lines = []
     in_paragraph = False
+    in_code = False
     for line in lines:
-        line = line.strip()
-        if line=='':
-            if in_paragraph:
-                line='</p>'
-                in_paragraph = False
+        if line.strip() == '```':
+            if in_code:
+                line = '</pre>'
+            else:
+                line = '<pre>'
+            in_code = not in_code
+        elif in_code:
+            pass
         else:
-            if line[0] != '#' and not in_paragraph:
-                in_paragraph = True
-                line = '<p>\n'+line
-            line = compile_headers(line)
-            line = compile_strikethrough(line)
-            line = compile_bold_stars(line)
-            line = compile_bold_underscore(line)
-            line = compile_italic_star(line)
-            line = compile_italic_underscore(line)
-            line = compile_code_inline(line)
-            line = compile_images(line)
-            line = compile_links(line)
+            line = line.strip()
+            if line == '':
+                if in_paragraph:
+                    line = '</p>'
+                    in_paragraph = False
+            else:
+                if line[0] != '#' and not in_paragraph:
+                    in_paragraph = True
+                    line = '<p>\n' + line
+                line = compile_headers(line)
+                line = compile_strikethrough(line)
+                line = compile_bold_stars(line)
+                line = compile_bold_underscore(line)
+                line = compile_italic_star(line)
+                line = compile_italic_underscore(line)
+                line = compile_code_inline(line)
+                line = compile_images(line)
+                line = compile_links(line)
         new_lines.append(line)
     new_text = '\n'.join(new_lines)
     return new_text
@@ -188,10 +206,10 @@ def markdown_to_html(markdown, add_css):
 <link rel="stylesheet" href="https://izbicki.me/css/code.css" />
 <link rel="stylesheet" href="https://izbicki.me/css/default.css" />
         '''
-    html+='''
+    html += '''
 </head>
 <body>
-    '''+compile_lines(markdown)+'''
+    ''' + compile_lines(markdown) + '''
 </body>
 </html>
     '''
@@ -225,7 +243,7 @@ def minify(html):
     >>> minify('a\n\n\n\n\n\n\n\n\n\n\n\n\n\nb\n\n\n\n\n\n\n\n\n\n')
     'a b'
     '''
-    return html
+    return ' '.join(html.split())
 
 
 def convert_file(input_file, add_css):
@@ -254,5 +272,5 @@ def convert_file(input_file, add_css):
     html = minify(html)
 
     # write the output file
-    with open(input_file[:-2]+'html', 'w') as f:
+    with open(input_file[:-2] + 'html', 'w') as f:
         f.write(html)
