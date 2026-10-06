@@ -232,24 +232,23 @@ def compile_code_inline(line):
     >>> compile_code_inline('```python3')
     '```python3'
     '''
-
+    if line.count("`") < 2 or "```" in line:
+        return line
     newLine = ""
-    for i in range(len(line)):
-        if line[i] == "`" and line.count("`") != 1 and line.count("```") != 1 and "`" not in line[0:i]:
-            start = i + 1
-            newLine += "<code>"
-            for c in line[start:]:
-                if c == "<":
-                    newLine += "&lt;"
-                elif c == ">":
-                    newLine += "&gt;"
-                elif c != "`":
-                    newLine += c
-                elif c == "`":
-                    newLine += "</code>"
-                break
+    in_code = False
+    for c in line:
+        if c == "`":
+            if in_code:
+                newLine += "</code>"
             else:
-                newLine += line[i]
+                newLine += "<code>"
+            in_code = not in_code
+        elif c == "<" and in_code:
+            newLine += "&lt;"
+        elif c == ">" and in_code:
+            newLine += "&gt;"
+        else:
+            newLine += c
     return newLine
 
 
