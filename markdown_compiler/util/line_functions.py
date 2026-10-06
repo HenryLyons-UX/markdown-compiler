@@ -250,28 +250,8 @@ def compile_code_inline(line):
                 break
             else:
                 newLine += line[i]
-    return newLine    
-    
-    newLine = ""
-    for i in range(len(line)):
-        if line [i] == "`" and line.count("`") != 1 and line.count("```") != 1 and "`" not in line[0:i]:
-            newLine += "<code>"
-            j = i +1
-            while line[j] != "`":
-                j += 1
-                if line[i] == "<":
-                    newLine += "&lt;"
-                elif line[i] == ">":
-                    newLine += "&gt;"
-                else:
-                     newLine += line[j]
-            i += 1
-            newLine += "</code>"
-        else:
-                newLine += line[i] 
     return newLine
-                                     
-  
+
 
 def compile_links(line):
     '''
@@ -290,18 +270,15 @@ def compile_links(line):
     >>> compile_links('this is wrong: [course webpage](https://github.com/mikeizbicki/cmc-csci040')
     'this is wrong: [course webpage](https://github.com/mikeizbicki/cmc-csci040'
     '''
-    num = line.count("__")
     newLine = ""
     if line.count(")") != 1 or line.count("](") != 1:
-         return line
+        return line
     start1 = line.find("](")
-    start2= line.find("(")
     linkText = line.find("[")
     before = line[0:linkText]
     endLink = line.find(")")
     endText = line.find(")")
-    newLine = before + '<a href="' +  line[start1 + 2:endLink] + '">' + line[linkText + 1:start1] + "</a>" + line[endText + 1:]
-
+    newLine = before + '<a href="' + line[start1 + 2:endLink] + '">' + line[linkText + 1:start1] + "</a>" + line[endText + 1:]
     return newLine
 
 
@@ -327,10 +304,8 @@ def compile_images(line):
         return line
     Alt = line.find("[")
     Altend = line.find("]")
-    link= line.find("(")
+    link = line.find("(")
     linkend = line.find(")")
     endText = line.find("![")
-
-    newLine = line[:endText] + '<img src="' + line[link + 1:linkend] +  '" alt="' + line[Alt+1:Altend] + '" />'
-    
+    newLine = line[:endText] + '<img src="' + line[link + 1:linkend] + '" alt="' + line[Alt + 1:Altend] + '" />'
     return newLine
