@@ -306,5 +306,5 @@ def compile_images(line):
     link = line.find("(")
     linkend = line.find(")")
     endText = line.find("![")
-    newLine = line[:endText] + '<img src="' + line[link + 1:linkend] + '" alt="' + line[Alt + 1:Altend] + '" />'
+    newLine = line[:endText] + '<img src="' + line[link + 1:linkend] + '" alt="' + line[Alt + 1:Altend] + '" />' + line[linkend + 1:]
     return newLine
