@@ -297,14 +297,13 @@ def compile_images(line):
     >>> compile_images('This is an image of Mike Izbicki: ![Mike Izbicki](https://avatars1.githubusercontent.com/u/1052630?v=2&s=460)')
     'This is an image of Mike Izbicki: <img src="https://avatars1.githubusercontent.com/u/1052630?v=2&s=460" alt="Mike Izbicki" />'
     '''
-    if line.count("!") != 1:
+    start = line.find("![")
+    if start == -1:
         return line
-    if "![" not in line or "](" not in line or ")" not in line:
+    mid = line.find("](", start)
+    if mid == -1:
         return line
-    Alt = line.find("[")
-    Altend = line.find("]")
-    link = line.find("(")
-    linkend = line.find(")")
-    endText = line.find("![")
-    newLine = line[:endText] + '<img src="' + line[link + 1:linkend] + '" alt="' + line[Alt + 1:Altend] + '" />' + line[linkend + 1:]
-    return newLine
+    end = line.find(")", mid)
+    if end == -1:
+        return line
+    return line[:start] + '<img src="' + line[mid + 2:end] + '" alt="' + line[start + 2:mid] + '" />' + line[end + 1:]
