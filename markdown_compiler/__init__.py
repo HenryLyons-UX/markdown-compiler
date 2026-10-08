@@ -137,12 +137,41 @@ def compile_lines(text):
         print('i=',i)
     </pre>
     <BLANKLINE>
+    >>> compile_lines('1. this')
+    '<ol><li>this</li></ol>'
+
+    >>> compile_lines('1. this\n2. is\n3. a\n4. list')
+    '<ol><li>this</li><li>is</li><li>a</li><li>list</li></ol>'
+
+    >>> print(compile_lines("""
+    ... This is a paragraph.
+    ...
+    ... 1. this
+    ... 2. is
+    ...
+    ... This is another paragraph.
+    ... """))
+    <BLANKLINE>
+    <p>
+    This is a paragraph.
+    </p>
+    <ol><li>this</li><li>is</li></ol>
+    <BLANKLINE>
+    <p>
+    This is another paragraph.
+    </p>
     '''
     lines = text.split('\n')
     new_lines = []
     in_paragraph = False
     in_code = False
+    in_list = False
     for line in lines:
+        number, dot, item = line.strip().partition('. ')
+        is_item = not in_code and dot != '' and number.isdigit()
+        if in_list and not is_item:
+            new_lines[-1] += '</ol>'
+            in_list = False
         if line.strip() == '```':
             if in_code:
                 line = '</pre>'
@@ -158,7 +187,9 @@ def compile_lines(text):
                     line = '</p>'
                     in_paragraph = False
             else:
-                if line[0] != '#' and not in_paragraph:
+                if is_item:
+                    line = item
+                elif line[0] != '#' and not in_paragraph:
                     in_paragraph = True
                     line = '<p>\n' + line
                 line = compile_headers(line)
@@ -170,7 +201,19 @@ def compile_lines(text):
                 line = compile_code_inline(line)
                 line = compile_images(line)
                 line = compile_links(line)
+                if is_item:
+                    line = '<li>' + line + '</li>'
+                    if in_paragraph:
+                        new_lines.append('</p>')
+                        in_paragraph = False
+                    if in_list:
+                        new_lines[-1] += line
+                        continue
+                    in_list = True
+                    line = '<ol>' + line
         new_lines.append(line)
+    if in_list:
+        new_lines[-1] += '</ol>'
     new_text = '\n'.join(new_lines)
     return new_text
 
